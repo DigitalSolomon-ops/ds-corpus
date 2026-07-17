@@ -3,7 +3,13 @@ __pycache__/
 *.egg-info/
 .venv/
 .pytest_cache/
+# Secrets — never commit. Broad on purpose after a close call.
 .env
+.env.*
+!.env.example
+*.env
+env.txt
+.env.txt
 *.sqlite3
 build/
 dist/

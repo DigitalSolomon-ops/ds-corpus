@@ -41,8 +41,32 @@ def main(ctx: click.Context, config_dir: Path) -> None:
             stream.reconfigure(encoding="utf-8")  # type: ignore[union-attr]
         except (AttributeError, ValueError):
             pass
+    _load_dotenv(config_dir.parent)
     ctx.ensure_object(dict)
     ctx.obj["config_dir"] = config_dir
+
+
+def _load_dotenv(repo_root: Path) -> None:
+    """Load KEY=VALUE lines from a local .env into the process environment.
+
+    Local-dev convenience only — in the cloud, secrets come from Secret
+    Manager, never a file (see governing constraints). Never overrides a value
+    already set in the environment; silently does nothing if there is no .env.
+    """
+    import os
+
+    for candidate in (repo_root / ".env", Path.cwd() / ".env"):
+        if not candidate.is_file():
+            continue
+        for line in candidate.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, _, val = line.partition("=")
+            key, val = key.strip(), val.strip().strip('"').strip("'")
+            if key and key not in os.environ:
+                os.environ[key] = val
+        return  # first .env found wins
 
 
 # ---------------------------------------------------------------- sources
