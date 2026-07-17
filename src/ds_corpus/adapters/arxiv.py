@@ -90,6 +90,21 @@ def parse_oai_page(xml_text: str) -> tuple[list[ArxivRecord], str | None]:
     return records, token
 
 
+def year_from_id(arxiv_id: str) -> int | None:
+    """First-submission year from the arXiv id itself.
+
+    The id encodes YYMM: new-style "2409.14583" -> 2024, old-style
+    "cs/0309136" -> 2003. This is the true submission date and is preferred
+    over the OAI `created` field, which can reflect a later version's date.
+    arXiv began in 1991, so YY >= 91 is 19YY and YY < 91 is 20YY.
+    """
+    digits = arxiv_id.split("/")[-1][:2] if "/" in arxiv_id else arxiv_id[:2]
+    if not digits.isdigit():
+        return None
+    yy = int(digits)
+    return 1900 + yy if yy >= 91 else 2000 + yy
+
+
 def _rel_path(arxiv_id: str) -> str:
     # new-style "2601.01234" -> coding/arxiv/2601/2601.01234.md
     # old-style "cs/0309136" -> coding/arxiv/legacy/cs-0309136.md
@@ -135,7 +150,10 @@ class ArxivAdapter(Adapter):
 
     def _candidate(self, r: ArxivRecord) -> Candidate:
         aid = r.arxiv_id
-        year = int(r.created[:4]) if r.created[:4].isdigit() else None
+        # Prefer the id-encoded submission year; fall back to OAI `created`.
+        year = year_from_id(aid)
+        if year is None and r.created[:4].isdigit():
+            year = int(r.created[:4])
         attribution = (
             f"{'; '.join(r.authors)} ({year or 'n.d.'}). {r.title}. "
             f"arXiv:{aid}. License: {r.license_uri or 'unresolved'}."
