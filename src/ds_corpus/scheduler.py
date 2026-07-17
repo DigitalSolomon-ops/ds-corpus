@@ -34,7 +34,9 @@ class RunStats:
 
 
 def _run_id(source_id: str) -> str:
-    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    # microsecond precision so two runs in the same second don't collide on
+    # the runs table's unique key.
+    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S_%fZ")
     return f"{ts}-{source_id}"
 
 
@@ -44,6 +46,7 @@ def run_source(
     store: FilesystemStore,
     index: SQLiteIndex,
     *,
+    canon=None,
     dry_run: bool = False,
     limit: int | None = None,
     full: bool = False,
@@ -66,6 +69,10 @@ def run_source(
     if adapter_cls is None:
         raise ValueError(f"no adapter registered for {source.adapter!r}")
     adapter = adapter_cls()
+    if getattr(adapter, "canon_driven", False):
+        if canon is None:
+            raise ValueError(f"source {source.id} is canon-driven but no canon was provided")
+        adapter.canon = canon
     cursor = None if full else index.get_cursor(source.id)
 
     if not dry_run:
@@ -188,6 +195,7 @@ def run_schedule(
     store: FilesystemStore,
     index: SQLiteIndex,
     *,
+    canon=None,
     dry_run: bool = False,
     log=print,
 ) -> dict[str, RunStats]:
@@ -200,7 +208,7 @@ def run_schedule(
             log(f"HALT present — skipping remaining sources (next: {source.id})")
             break
         results[source.id] = run_source(
-            source, settings, store, index, dry_run=dry_run, log=log
+            source, settings, store, index, canon=canon, dry_run=dry_run, log=log
         )
     return results
 

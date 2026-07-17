@@ -13,9 +13,12 @@ from __future__ import annotations
 
 from typing import Iterator
 
-from ds_corpus.canon import CanonWork
-from ds_corpus.editions import Edition
+from ds_corpus.adapters.base import Adapter, Candidate
+from ds_corpus.canon import Canon, CanonWork
+from ds_corpus.editions import Edition, rank_editions
 from ds_corpus.http import PoliteSession
+from ds_corpus.normalize import strip_gutenberg_boilerplate, text_to_markdown
+from ds_corpus.registry import SourceConfig
 
 GUTENDEX_URL = "https://gutendex.com/books"
 
@@ -104,3 +107,108 @@ def search(session: PoliteSession, work: CanonWork, max_results: int = 20) -> li
         if editions:
             return editions[:max_results]
     return []
+
+
+def _clean_person(name: str) -> str:
+    """Drop Gutendex's parenthetical name expansions for display, e.g.
+    'Meiklejohn, J. M. D. (John Miller Dow)' -> 'Meiklejohn, J. M. D.'."""
+    import re
+
+    return re.sub(r"\s*\([^)]*\)", "", name).strip()
+
+
+def _attribution(work: CanonWork, ed: Edition) -> str:
+    translator = _clean_person(ed.translators[0]) if ed.translators else None
+    trans = f" ({translator}, Trans.)" if translator else ""
+    return (
+        f"{work.author} ({work.original_year}). {work.title}{trans}. "
+        f"Project Gutenberg. Public domain."
+    )
+
+
+class GutenbergAdapter(Adapter):
+    """Canon-driven harvest: ingest the best open edition of each canon work
+    that hunts Gutenberg. Unlike arXiv (a firehose we filter), Gutenberg is
+    pulled *by name* — the resolver already decided which edition; harvest
+    fetches and ingests it, tagging it a canon hit so significance triage is
+    short-circuited (a work we deliberately asked for is significant by
+    definition).
+
+    Idempotent with no cursor: each run re-resolves and the body-hash dedup
+    absorbs re-fetches of unchanged texts."""
+
+    id = "gutenberg"
+    canon_driven = True
+
+    #: set by the runner before harvest() for canon-driven adapters
+    canon: Canon | None = None
+
+    def harvest(
+        self,
+        session: PoliteSession,
+        source: SourceConfig,
+        cursor: str | None,
+        limit: int | None,
+    ) -> Iterator[Candidate]:
+        if self.canon is None:
+            raise RuntimeError("GutenbergAdapter.harvest requires canon to be set")
+
+        yielded = 0
+        for work in self.canon.works:
+            if "gutenberg" not in work.hunt.sources:
+                continue
+            if work.domain not in source.domain:
+                continue
+
+            editions = search(session, work)
+            if not editions:
+                continue
+            viable = [s for s in rank_editions(work, editions) if s.disqualified is None]
+            if not viable:
+                continue
+            ed = viable[0].edition
+
+            yield self._candidate(work, ed)
+            yielded += 1
+            if limit is not None and yielded >= limit:
+                return
+
+    def _candidate(self, work: CanonWork, ed: Edition) -> Candidate:
+        translator = ed.translators[0] if ed.translators else None
+        fm_fields = {
+            "id": f"gutenberg:{ed.edition_id}",
+            "canon_id": work.id,
+            "title": ed.title or work.title,
+            "authors": ed.authors or [work.author],
+            "translator": translator,
+            "domain": work.domain,
+            "source_id": "gutenberg",
+            "source_url": f"https://www.gutenberg.org/ebooks/{ed.edition_id}",
+            "publisher": "Project Gutenberg",
+            "original_year": work.original_year if work.original_year >= 0 else None,
+            "pd_basis": "us_public_domain",
+            "source_format": "text",
+            "converter": "ds-corpus/0.2.0",
+            "body_status": "full_text",
+            # Canon hit short-circuits triage: deterministic significance.
+            "significance_score": 100,
+            "significance_signals": {
+                "canon_hit": True,
+                "authority_count": len(work.authorities),
+                "primary_source": work.primary_source,
+            },
+            "triage": None,
+            "tags": ["primary-source"] if work.primary_source else [],
+            "attribution": _attribution(work, ed),
+        }
+
+        def fetch_body(session: PoliteSession) -> str:
+            raw = session.get(ed.url).text
+            return text_to_markdown(strip_gutenberg_boilerplate(raw))
+
+        return Candidate(
+            fm_fields=fm_fields,
+            raw_license=ed.raw_license,
+            rel_path=f"{work.domain}/gutenberg/{work.id}.md",
+            fetch_body=fetch_body,
+        )

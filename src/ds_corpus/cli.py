@@ -211,7 +211,9 @@ def run(ctx, source_id, schedule, local, dry_run, limit, full) -> None:
 
     cfg = _config_dir(ctx)
     settings = _load_settings_or_die(cfg)
-    reg = _load_registry_or_die(cfg)
+    # Canon is needed by canon-driven adapters (gutenberg); loading it always
+    # keeps the wiring simple and validates it on every run.
+    canon, reg = _load_canon_or_die(cfg)
     store, index = _open_local(ctx)
     try:
         if source_id:
@@ -221,14 +223,15 @@ def run(ctx, source_id, schedule, local, dry_run, limit, full) -> None:
             if not source.enabled:
                 _die(f"source {source_id} is disabled in sources.yaml")
             stats = run_source(
-                source, settings, store, index,
+                source, settings, store, index, canon=canon,
                 dry_run=dry_run, limit=limit, full=full, log=click.echo,
             )
             if stats.errors:
                 sys.exit(1)
         else:
             results = run_schedule(
-                schedule, reg, settings, store, index, dry_run=dry_run, log=click.echo
+                schedule, reg, settings, store, index, canon=canon,
+                dry_run=dry_run, log=click.echo,
             )
             if any(s.errors for s in results.values()):
                 sys.exit(1)

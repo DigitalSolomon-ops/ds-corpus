@@ -61,3 +61,23 @@ def text_to_markdown(text: str) -> str:
     if not md:
         raise ConversionError("empty text body")
     return md
+
+
+# Project Gutenberg wraps every text in a legal header/footer. The body is
+# between the START and END sentinel lines; everything outside is licensing
+# boilerplate that is not the work and must not be indexed as it.
+_PG_START = re.compile(r"\*\*\*\s*START OF (?:THE|THIS) PROJECT GUTENBERG EBOOK.*?\*\*\*", re.I)
+_PG_END = re.compile(r"\*\*\*\s*END OF (?:THE|THIS) PROJECT GUTENBERG EBOOK.*?\*\*\*", re.I)
+
+
+def strip_gutenberg_boilerplate(text: str) -> str:
+    """Return only the work between PG's START/END sentinels.
+
+    If a sentinel is missing (older texts vary), keep the whole thing rather
+    than guess — better a little boilerplate than a truncated work."""
+    start = _PG_START.search(text)
+    body = text[start.end():] if start else text
+    end = _PG_END.search(body)
+    if end:
+        body = body[: end.start()]
+    return body

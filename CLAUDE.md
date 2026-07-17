@@ -51,6 +51,14 @@ editions of known-important works. Canon coverage, not document count, is the
 success metric. `config/sources.yaml` is the authorization surface: strict
 validation, unknown keys fail.
 
+**Canon-driven adapters** (gutenberg) set `canon_driven = True`; the runner
+loads the canon and hands it to them. Their harvest resolves each canon work
+that hunts them, fetches the resolver's chosen edition, and ingests it as a
+**canon hit** — `significance_score=100`, `triage=null` — because a work we
+deliberately asked for is significant by definition (short-circuits the P6
+gate). Contrast the arXiv adapter, a firehose we filter. Idempotent with no
+cursor: re-resolve every run, body-hash dedup absorbs unchanged re-fetches.
+
 ## Conventions
 
 - Python ≥3.11, Pydantic v2 models with `extra="forbid"` throughout config parsing.
@@ -68,7 +76,10 @@ validation, unknown keys fail.
       4/5 metaphysics resolved, all preferred translations picked; HUMAN GATE
       PENDING: Marcus reviews edition choices in _canon/coverage.json)
 - [ ] P6 — Significance + triage
-- [ ] P7 — Open-tier adapters
+- [~] P7 — Open-tier adapters (gutenberg canon harvest DONE: resolves canon
+      works, fetches selected edition, strips PG boilerplate, ingests as canon
+      hit w/ significance short-circuit. Remaining P7 sources: standard_ebooks,
+      wikisource, courtlistener, govinfo, met_museum, openalex, doaj, bulk_repo)
 - [ ] P8 — Deep archive adapters
 - [ ] P9 — Cloud Run Job + Scheduler + GCS + Secret Manager
 - [ ] P10 — Local mirror + FTS
