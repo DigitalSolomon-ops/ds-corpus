@@ -34,6 +34,13 @@ def _config_dir(ctx: click.Context) -> Path:
 @click.pass_context
 def main(ctx: click.Context, config_dir: Path) -> None:
     """ds-corpus — curated open-corpus library."""
+    # Windows consoles default to cp1252; make our output UTF-8 so any stray
+    # non-ASCII char in a message can never crash a command mid-run.
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8")  # type: ignore[union-attr]
+        except (AttributeError, ValueError):
+            pass
     ctx.ensure_object(dict)
     ctx.obj["config_dir"] = config_dir
 
@@ -279,7 +286,7 @@ def gate(ctx: click.Context, phase: str, action: str) -> None:
     store, index = _open_local(ctx)
     index.close()
     dash.set_gate(store, phase, signed=(action == "pass"))
-    click.echo(f"{phase}: {'signed off ✓' if action == 'pass' else 'sign-off cleared'}")
+    click.echo(f"{phase}: {'signed off' if action == 'pass' else 'sign-off cleared'}")
 
 
 @main.command()
