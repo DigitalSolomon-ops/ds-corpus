@@ -6,6 +6,7 @@ stub that names the phase it arrives in — visible shape, honest status.
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -326,6 +327,50 @@ def status(ctx: click.Context) -> None:
     if store.halted():
         click.echo("!! HALT file present — runs will abort", err=True)
     index.close()
+
+
+@main.group("triage")
+def triage_group() -> None:
+    """Audit the significance gate."""
+
+
+@triage_group.command("review")
+@click.option("--rejected", is_flag=True, help="Show rejected records and their rationale")
+@click.option("--limit", type=int, default=20, help="Max records to show")
+@click.pass_context
+def triage_review(ctx: click.Context, rejected: bool, limit: int) -> None:
+    """Review gate decisions: rejects with rationale, or the audit sample."""
+    store, index = _open_local(ctx)
+    index.close()
+    root = store.root
+    if rejected:
+        paths = sorted((root / "_rejected").glob("*.md"))[:limit]
+        if not paths:
+            click.echo("no rejected records yet")
+            return
+        for p in paths:
+            click.echo(f"--- {p.name}")
+            click.echo(p.read_text(encoding="utf-8").strip())
+    else:
+        # audit-sample lines from the most recent run log
+        run_logs = sorted((root / "_runs").glob("*.jsonl"))
+        if not run_logs:
+            click.echo("no runs yet")
+            return
+        shown = 0
+        for line in run_logs[-1].read_text(encoding="utf-8").splitlines():
+            try:
+                ev = json.loads(line)
+            except ValueError:
+                continue
+            if ev.get("event") == "audit_sample":
+                click.echo(f"[{ev.get('decision')}] {ev.get('doc_id')} "
+                           f"sig={ev.get('significance')} — {ev.get('rationale')}")
+                shown += 1
+                if shown >= limit:
+                    break
+        if shown == 0:
+            click.echo("no audit-sample entries in the latest run")
 
 
 @main.command()

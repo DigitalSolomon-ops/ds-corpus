@@ -29,6 +29,15 @@ class Significance(BaseModel):
     threshold: int = Field(default=45, ge=0, le=100)
 
 
+class Triage(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    # Whether the Claude triage stage runs at all. When False, records that
+    # pass the deterministic floor stay pending rather than being judged.
+    enabled: bool = True
+    model: str = Field(default="claude-haiku-4-5", min_length=1)
+
+
 class Settings(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -36,6 +45,7 @@ class Settings(BaseModel):
     license_allowlist: list[str] = Field(min_length=1)
     budgets: Budgets
     significance: Significance = Significance()
+    triage: Triage = Triage()
     user_agent: str = Field(min_length=1, description="Descriptive UA with contact address")
     contact_email: str = Field(pattern=r".+@.+\..+")
     gcs_bucket: str = Field(min_length=1)

@@ -44,6 +44,23 @@ not ingested.
 - Kill switch: existence of `gs://ds-corpus-library/HALT` aborts at next task boundary.
 - Sequential sources, never parallel — polite, not fast.
 
+## Significance gate (P6)
+
+Two stages, reasoning-vs-execution split. Canon-driven adapters bypass it
+entirely (canon hit = significant by definition). For everything else:
+deterministic scorer (`significance.py`) rejects below-floor chaff for free;
+survivors go to Claude Haiku triage (`triage.py`) over the **Batch API** with
+a **cached shared rubric**, bounded by `max_triage_usd`. Rejects are written to
+`_rejected/<id>.md` **with rationale**, never deleted; an audit sample of
+decisions is logged each run. Hitting the cost cap leaves records *pending*
+(retry next run), never discarded. The triage client is injected, so tests run
+offline; a real run only spends on floor-clearers, up to the cap.
+
+Note: arXiv (and other non-canon sources) score low until citation/authority
+enrichment lands (OpenAlex, authority matching) — so they're currently
+rejected at the deterministic floor at zero cost, which is the intended
+curator behavior, auditable in `_rejected/`.
+
 ## Canon layer
 
 `config/canon/*.yaml` are hand-authored want-lists — the system hunts for open
@@ -75,7 +92,10 @@ cursor: re-resolve every run, body-hash dedup absorbs unchanged re-fetches.
 - [x] P5 — Canon resolver (hunt/rank/select + coverage.json/WANTED.md; live
       4/5 metaphysics resolved, all preferred translations picked; HUMAN GATE
       PENDING: Marcus reviews edition choices in _canon/coverage.json)
-- [ ] P6 — Significance + triage
+- [x] P6 — Significance + triage (deterministic scorer + Haiku Batch gate w/
+      prompt caching, cost cap, _rejected/ rationale, audit sample; wired into
+      non-canon ingest. HUMAN GATE PENDING: review 20 accepts/20 rejects once a
+      run produces triage decisions — needs enrichment or a paid run)
 - [~] P7 — Open-tier adapters (gutenberg canon harvest DONE: resolves canon
       works, fetches selected edition, strips PG boilerplate, ingests as canon
       hit w/ significance short-circuit. Remaining P7 sources: standard_ebooks,

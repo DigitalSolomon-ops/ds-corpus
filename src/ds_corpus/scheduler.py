@@ -10,11 +10,15 @@ from datetime import datetime, timezone
 
 from ds_corpus import licensing
 from ds_corpus.adapters import ADAPTERS
+from ds_corpus.gate import GateItem
+from ds_corpus.gate import evaluate as gate_evaluate
+from ds_corpus.gate import rejection_markdown
 from ds_corpus.http import PoliteSession, RobotsDisallowed
 from ds_corpus.index import SQLiteIndex
 from ds_corpus.normalize import ConversionError
 from ds_corpus.registry import SourceConfig, SourcesRegistry
 from ds_corpus.settings import Settings
+from ds_corpus.significance import SignificanceSignals
 from ds_corpus.store import FilesystemStore
 from ds_corpus.writer import Outcome, ingest
 
@@ -28,6 +32,11 @@ class RunStats:
     quarantined: int = 0
     errors: int = 0
     seen: int = 0
+    rejected: int = 0                 # significance gate rejections
+    pending: int = 0                  # cost-capped / unjudged, retry next run
+    triaged: int = 0                  # docs sent to Claude triage
+    estimated_triage_usd: float = 0.0
+    bytes_written: int = 0
     halted: bool = False
     budget_stop: str | None = None
     by_outcome_detail: list[str] = field(default_factory=list)
@@ -69,11 +78,19 @@ def run_source(
     if adapter_cls is None:
         raise ValueError(f"no adapter registered for {source.adapter!r}")
     adapter = adapter_cls()
-    if getattr(adapter, "canon_driven", False):
+    canon_driven = getattr(adapter, "canon_driven", False)
+    if canon_driven:
         if canon is None:
             raise ValueError(f"source {source.id} is canon-driven but no canon was provided")
         adapter.canon = canon
     cursor = None if full else index.get_cursor(source.id)
+
+    # Canon-driven adapters bypass the significance gate — a canon hit is
+    # significant by definition. Everything else runs the two-stage gate.
+    gated = not canon_driven
+    gate_items: list[GateItem] = []
+    bodies: dict[str, tuple[str, str | None, str]] = {}
+    triage_client = _make_triage_client(settings) if (gated and not dry_run) else None
 
     if not dry_run:
         index.start_run(run_id)
@@ -84,12 +101,15 @@ def run_source(
     # so a run over an all-closed stretch of the source still terminates.
     scan_cap = effective_limit if dry_run else effective_limit * 500
 
-    bytes_written = 0
     with PoliteSession(settings.user_agent, source.rate.requests_per_second) as session:
         try:
             for cand in adapter.harvest(session, source, cursor, scan_cap):
                 stats.seen += 1
-                if stats.written + stats.superseded >= effective_limit:
+                # gated docs are written after the loop, so bound collection by
+                # queue length; ungated adapters bound by docs already written.
+                reached = (len(gate_items) if gated
+                           else stats.written + stats.superseded) >= effective_limit
+                if reached:
                     stats.budget_stop = "limit"
                     break
 
@@ -101,7 +121,7 @@ def run_source(
                 if time.monotonic() - started > settings.budgets.max_wall_seconds:
                     stats.budget_stop = "max_wall_seconds"
                     break
-                if bytes_written > settings.budgets.max_bytes_per_run:
+                if stats.bytes_written > settings.budgets.max_bytes_per_run:
                     stats.budget_stop = "max_bytes_per_run"
                     break
 
@@ -138,36 +158,56 @@ def run_source(
                     _event(store, run_id, dry_run, {"event": "quarantined", "id": doc_id, "error": str(e)})
                     continue
 
-                result = ingest(
-                    fm_fields=cand.fm_fields,
-                    body=body,
-                    raw_license=cand.raw_license,
-                    rel_path=cand.rel_path,
-                    store=store,
-                    index=index,
-                    license_allowlist=source.license_policy.allow,
-                )
-                _event(store, run_id, dry_run, {
-                    "event": result.outcome.value, "id": result.doc_id,
-                    "path": result.path, "detail": result.detail,
-                })
-                if result.outcome is Outcome.WRITTEN:
-                    stats.written += 1
-                    bytes_written += len(body.encode("utf-8"))
-                    log(f"  WROTE {result.path}")
-                elif result.outcome is Outcome.SUPERSEDED_OLD:
-                    stats.superseded += 1
-                    bytes_written += len(body.encode("utf-8"))
-                    log(f"  WROTE (supersedes) {result.path}")
-                elif result.outcome is Outcome.DUPLICATE:
-                    stats.duplicates += 1
-                elif result.outcome is Outcome.SKIPPED_LICENSE:
-                    stats.skipped_license += 1
-                elif result.outcome is Outcome.QUARANTINED:
-                    stats.quarantined += 1
+                if gated:
+                    # Non-canon docs don't write yet — they queue for the
+                    # significance gate (deterministic + Claude triage) below.
+                    gate_items.append(GateItem(
+                        doc_id=doc_id,
+                        fm_fields=cand.fm_fields,
+                        body=body,
+                        signals=_signals_from_fm(cand.fm_fields),
+                    ))
+                    bodies[doc_id] = (body, cand.raw_license, cand.rel_path)
+                    continue
+
+                _ingest_and_count(cand.fm_fields, body, cand.raw_license, cand.rel_path,
+                                  store, index, source, stats, run_id, dry_run, log)
         except RobotsDisallowed as e:
             log(f"[{source.id}] robots.txt disallows {e} — stopping (fail polite)")
             stats.errors += 1
+
+        # --- significance gate for non-canon adapters --------------------
+        if gated and gate_items and not dry_run:
+            gate_result = gate_evaluate(
+                gate_items,
+                threshold=settings.significance.threshold,
+                triage_client=triage_client,
+                max_triage_usd=settings.budgets.max_triage_usd,
+                log=log,
+            )
+            stats.triaged = gate_result.triaged_count
+            stats.estimated_triage_usd = gate_result.estimated_usd
+            for a in gate_result.accepted:
+                body, raw_lic, rel_path = bodies[a.doc_id]
+                fm = dict(next(g.fm_fields for g in gate_items if g.doc_id == a.doc_id))
+                fm["significance_score"] = a.significance
+                if a.triage is not None:
+                    fm["triage"] = a.triage
+                _ingest_and_count(fm, body, raw_lic, rel_path,
+                                  store, index, source, stats, run_id, dry_run, log)
+            for rej in gate_result.rejected:
+                rpath = f"_rejected/{rej.doc_id.replace(':', '_').replace('/', '_')}.md"
+                store.write(rpath, rejection_markdown(rej))
+                stats.rejected += 1
+                _event(store, run_id, dry_run, {
+                    "event": rej.decision.value, "id": rej.doc_id,
+                    "significance": rej.significance, "rationale": rej.rationale})
+            stats.pending = len(gate_result.pending)
+            for p in gate_result.pending:
+                _event(store, run_id, dry_run, {
+                    "event": p.decision.value, "id": p.doc_id, "rationale": p.rationale})
+            for entry in gate_result.audit_sample:
+                _event(store, run_id, dry_run, dict(entry, event="audit_sample"))
 
     # persist cursor only on real runs that ended cleanly (no hard error)
     if not dry_run:
@@ -182,6 +222,9 @@ def run_source(
         f"superseded={stats.superseded} dup={stats.duplicates} "
         f"license-skip={stats.skipped_license} quarantined={stats.quarantined} "
         f"errors={stats.errors}"
+        + (f" rejected={stats.rejected} triaged={stats.triaged}" if gated else "")
+        + (f" pending={stats.pending}" if stats.pending else "")
+        + (f" est-triage=${stats.estimated_triage_usd:.4f}" if stats.estimated_triage_usd else "")
         + (f" STOPPED({stats.budget_stop})" if stats.budget_stop else "")
         + (" HALTED" if stats.halted else "")
     )
@@ -217,3 +260,60 @@ def _event(store: FilesystemStore, run_id: str, dry_run: bool, event: dict) -> N
     if not dry_run:
         event["ts"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
         store.append_run_event(run_id, event)
+
+
+# text-layer quality by source_format, feeding significance.edition_quality
+_FORMAT_QUALITY = {"text": 5, "html": 4, "pdf": 4, "epub": 4}
+
+
+def _signals_from_fm(fm: dict) -> SignificanceSignals:
+    """Build deterministic-scorer signals from what a candidate already knows.
+    Citation and authority enrichment (OpenAlex, authority matching) land with
+    those sources; until then cited_by is unknown (None), not zero-penalized."""
+    return SignificanceSignals(
+        canon_hit=bool(fm.get("canon_id")),
+        authority_count=len((fm.get("significance_signals") or {}).get("authorities", [])),
+        cited_by=(fm.get("significance_signals") or {}).get("cited_by"),
+        primary_source=bool((fm.get("significance_signals") or {}).get("primary_source", False)),
+        original_year=fm.get("original_year"),
+        edition_quality=_FORMAT_QUALITY.get(fm.get("source_format", ""), 3),
+    )
+
+
+def _make_triage_client(settings: Settings):
+    """Real Batch triage client, only when triage is enabled and a key exists.
+    Triage still only fires on records that clear the deterministic floor, and
+    is bounded by max_triage_usd — so constructing it never forces spend."""
+    import os
+
+    if not settings.triage.enabled or not os.environ.get("ANTHROPIC_API_KEY"):
+        return None
+    from ds_corpus.triage import AnthropicBatchTriageClient
+
+    return AnthropicBatchTriageClient(model=settings.triage.model)
+
+
+def _ingest_and_count(fm_fields, body, raw_license, rel_path, store, index,
+                      source, stats: RunStats, run_id, dry_run, log) -> None:
+    result = ingest(
+        fm_fields=fm_fields, body=body, raw_license=raw_license, rel_path=rel_path,
+        store=store, index=index, license_allowlist=source.license_policy.allow,
+    )
+    _event(store, run_id, dry_run, {
+        "event": result.outcome.value, "id": result.doc_id,
+        "path": result.path, "detail": result.detail,
+    })
+    if result.outcome is Outcome.WRITTEN:
+        stats.written += 1
+        stats.bytes_written += len(body.encode("utf-8"))
+        log(f"  WROTE {result.path}")
+    elif result.outcome is Outcome.SUPERSEDED_OLD:
+        stats.superseded += 1
+        stats.bytes_written += len(body.encode("utf-8"))
+        log(f"  WROTE (supersedes) {result.path}")
+    elif result.outcome is Outcome.DUPLICATE:
+        stats.duplicates += 1
+    elif result.outcome is Outcome.SKIPPED_LICENSE:
+        stats.skipped_license += 1
+    elif result.outcome is Outcome.QUARANTINED:
+        stats.quarantined += 1

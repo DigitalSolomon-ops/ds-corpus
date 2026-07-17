@@ -15,6 +15,10 @@ budgets:
 significance:
   threshold: 45                       # canon hits short-circuit this
 
+triage:
+  enabled: true
+  model: claude-haiku-4-5             # Batch API + prompt caching; cost-capped
+
 user_agent: "ds-corpus/0.2.0 (curated open-corpus ingest; contact: digitalsolomon.com@gmail.com)"
 contact_email: digitalsolomon.com@gmail.com
 gcs_bucket: ds-corpus-library

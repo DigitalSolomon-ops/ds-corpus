@@ -14,6 +14,7 @@ VALID = {
         "max_triage_usd": 1.0,
     },
     "significance": {"threshold": 45},
+    "triage": {"enabled": True, "model": "claude-haiku-4-5"},
     "user_agent": "ds-corpus/test (contact: test@example.com)",
     "contact_email": "test@example.com",
     "gcs_bucket": "ds-corpus-library",
