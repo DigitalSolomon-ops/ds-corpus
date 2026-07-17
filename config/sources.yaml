@@ -66,7 +66,7 @@ sources:
   - id: internet_archive
     domain: [metaphysics, law, coding, art]
     tier: deep_archive
-    enabled: false
+    enabled: true
     adapter: internet_archive
     license_policy:
       mode: per_record                 # fulltext + open collections only

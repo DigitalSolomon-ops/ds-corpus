@@ -61,6 +61,24 @@ enrichment lands (OpenAlex, authority matching) — so they're currently
 rejected at the deterministic floor at zero cost, which is the intended
 curator behavior, auditable in `_rejected/`.
 
+## Deep archive tier — Internet Archive (P8)
+
+`internet_archive` is canon-driven like Gutenberg, but the tier's safety rules
+are absolute and enforced against the **authoritative metadata API** (not the
+search index), before any selection or fetch:
+- **Never lending/restricted.** `access-restricted-item: true` or an
+  `inlibrary`/`lendinglibrary` collection → rejected. IA controlled-lending
+  books are not open.
+- **Fail-closed license.** A CC `licenseurl` or `possible-copyright-status:
+  NOT_IN_COPYRIGHT/PUBLIC_DOMAIN`, else skipped.
+- **No fabricated bodies.** Item with a `_djvu.txt` text layer → `full_text`;
+  item with only page images → `images_only` metadata record, **empty body**,
+  linked, never OCR'd. OCR is a later phase with its own gate.
+
+The other P8 adapters (hathitrust full-view-only, loc, perseus, gallica,
+digivatlib, digital_bodleian, oai_generic) clone this pattern — IIIF sources
+produce images_only records.
+
 ## Canon layer
 
 `config/canon/*.yaml` are hand-authored want-lists — the system hunts for open
@@ -100,7 +118,11 @@ cursor: re-resolve every run, body-hash dedup absorbs unchanged re-fetches.
       works, fetches selected edition, strips PG boilerplate, ingests as canon
       hit w/ significance short-circuit. Remaining P7 sources: standard_ebooks,
       wikisource, courtlistener, govinfo, met_museum, openalex, doaj, bulk_repo)
-- [ ] P8 — Deep archive adapters
+- [~] P8 — Deep archive adapters (internet_archive DONE: search + canon harvest
+      with strict safety gates — no lending/restricted items, fail-closed
+      license, images-only = empty body never fabricated. Resolves Aristotle
+      gap. Remaining P8: hathitrust full-view-only, loc, perseus, gallica,
+      digivatlib, digital_bodleian, oai_generic — all follow the IA pattern)
 - [ ] P9 — Cloud Run Job + Scheduler + GCS + Secret Manager
 - [ ] P10 — Local mirror + FTS
 - [ ] P11 — Scrape tier

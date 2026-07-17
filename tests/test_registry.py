@@ -13,8 +13,8 @@ def test_seed_registry_validates(config_dir):
     assert len(reg.sources) == 10
     # arxiv + gutenberg are enabled; the P7/P8 sources are registered but off
     enabled = {s.id for s in reg.sources if s.enabled}
-    assert enabled == {"arxiv", "gutenberg"}
-    assert "internet_archive" in {s.id for s in reg.sources}
+    assert enabled == {"arxiv", "gutenberg", "internet_archive"}
+    assert "courtlistener" in {s.id for s in reg.sources}
 
 
 def test_valid_source_parses():

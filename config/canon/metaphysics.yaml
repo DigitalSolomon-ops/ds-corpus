@@ -21,7 +21,7 @@ works:
       avoid: ["abridged", "student summary", "graphic adaptation"]
       min_word_count: 100000
     hunt:
-      sources: [gutenberg]
+      sources: [gutenberg, internet_archive]
     status: wanted
 
   - id: aristotle_metaphysics
@@ -40,7 +40,7 @@ works:
       avoid: ["abridged", "student summary"]
       min_word_count: 80000
     hunt:
-      sources: [gutenberg]
+      sources: [gutenberg, internet_archive]
     status: wanted
 
   - id: spinoza_ethics
@@ -58,7 +58,7 @@ works:
       avoid: ["abridged"]
       min_word_count: 50000
     hunt:
-      sources: [gutenberg]
+      sources: [gutenberg, internet_archive]
     status: wanted
 
   - id: hume_enquiry_human_understanding
@@ -76,7 +76,7 @@ works:
       avoid: ["abridged", "modernized paraphrase"]
       min_word_count: 40000
     hunt:
-      sources: [gutenberg]
+      sources: [gutenberg, internet_archive]
     status: wanted
 
   - id: plato_republic
@@ -94,5 +94,5 @@ works:
       avoid: ["abridged", "children's adaptation"]
       min_word_count: 100000
     hunt:
-      sources: [gutenberg]
+      sources: [gutenberg, internet_archive]
     status: wanted

@@ -164,9 +164,10 @@ def test_search_falls_back_to_author_only(registry):
 def test_resolve_work_reports_unbuilt_source(registry, settings):
     def handler(request):
         return httpx.Response(200, json=_gutendex_page())
-    w = _work(hunt={"sources": ["gutenberg", "internet_archive"]})
+    # courtlistener is registered but its adapter/hunter isn't built yet
+    w = _work(hunt={"sources": ["gutenberg", "courtlistener"]})
     r = resolve_work(w, registry, settings, _mock_session_factory(handler))
-    assert "internet_archive" in r.unbuilt_sources
+    assert "courtlistener" in r.unbuilt_sources
 
 
 def test_coverage_report_written(tmp_path, registry, settings):

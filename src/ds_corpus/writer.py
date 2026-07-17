@@ -63,9 +63,14 @@ def ingest(
             detail=f"raw={raw_license!r} resolved={license_id!r}",
         )
 
-    # Normalize; dedup on the normalized body.
+    # Normalize; dedup on the normalized body. Metadata/images-only records
+    # carry an empty body, which would all hash identically and wrongly dedup
+    # to a single record — so for those, hash their identity instead.
     normalized = normalize_markdown(body)
-    sha = body_sha256(normalized)
+    if normalized.strip():
+        sha = body_sha256(normalized)
+    else:
+        sha = body_sha256(doc_id + "\x00" + str(fm_fields.get("source_url", "")))
     if index.has_hash(sha):
         return IngestResult(Outcome.DUPLICATE, doc_id, detail=sha)
 

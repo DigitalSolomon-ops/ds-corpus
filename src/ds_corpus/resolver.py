@@ -27,9 +27,11 @@ from ds_corpus.store import FilesystemStore
 # appear here; a work hunting a not-yet-built source is reported honestly as
 # "source not available", never silently treated as a miss of the work itself.
 from ds_corpus.adapters import gutenberg as _gutenberg
+from ds_corpus.adapters import internet_archive as _internet_archive
 
 HUNTERS = {
     "gutenberg": _gutenberg.search,
+    "internet_archive": _internet_archive.search,
 }
 
 
