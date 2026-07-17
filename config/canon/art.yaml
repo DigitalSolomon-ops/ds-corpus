@@ -1,0 +1,200 @@
+# Hand-authored want-list — art / art history. A human stands behind each entry.
+# DRAFT for review: ~12 seed works.
+#
+# Two kinds of entry here: foundational TEXTS on art (Vasari, Alberti, Ruskin,
+# Wölfflin — public domain, on Gutenberg/Internet Archive), and CC0 OBJECT
+# RECORDS from open-access museum APIs (Met, Smithsonian). The museum entries
+# resolve to metadata + image manifests, not fetched images — the brief's
+# IIIF/images-only rule applies when those adapters land in P8.
+
+works:
+  - id: vasari_lives_of_the_artists
+    title: "Lives of the Most Excellent Painters, Sculptors, and Architects"
+    author: "Giorgio Vasari"
+    original_year: 1550
+    domain: art
+    why_canonical: >
+      The founding work of art history and biography; coined "Renaissance" as a
+      periodization and shaped the canon of Italian art for four centuries.
+    authorities: [great_books_western_world, oxford_history_of_art, janson_history_of_art]
+    primary_source: true
+    acceptable_editions:
+      prefer_translations: ["de Vere", "Gaston du C. de Vere"]
+      avoid: ["selected", "abridged"]
+      min_word_count: 200000
+    hunt:
+      sources: [gutenberg, internet_archive]
+    status: wanted
+
+  - id: alberti_on_painting
+    title: "On Painting (De Pictura)"
+    author: "Leon Battista Alberti"
+    original_year: 1435
+    domain: art
+    why_canonical: >
+      The first treatise on linear perspective and the theory of pictorial
+      composition; the intellectual charter of Renaissance painting.
+    authorities: [oxford_history_of_art, great_books_western_world]
+    primary_source: true
+    acceptable_editions:
+      prefer_translations: ["Spencer", "Grayson"]
+    hunt:
+      sources: [internet_archive]
+    status: wanted
+
+  - id: ruskin_stones_of_venice
+    title: "The Stones of Venice"
+    author: "John Ruskin"
+    original_year: 1851
+    domain: art
+    why_canonical: >
+      The most influential 19th-century work of architectural criticism; tied
+      the moral condition of a society to the character of its buildings and
+      shaped the Gothic Revival and Arts and Crafts movements.
+    authorities: [oxford_history_of_art, janson_history_of_art]
+    primary_source: true
+    acceptable_editions:
+      avoid: ["abridged"]
+      min_word_count: 150000
+    hunt:
+      sources: [gutenberg, internet_archive]
+    status: wanted
+
+  - id: wolfflin_principles_art_history
+    title: "Principles of Art History"
+    author: "Heinrich Wölfflin"
+    original_year: 1915
+    domain: art
+    why_canonical: >
+      Established the formal method of art history with its five polarities
+      (linear vs painterly, etc.); the basis of stylistic analysis as a
+      discipline.
+    authorities: [oxford_history_of_art, janson_history_of_art]
+    primary_source: true
+    acceptable_editions:
+      prefer_translations: ["Hottinger"]
+    hunt:
+      sources: [internet_archive]
+    status: wanted
+
+  - id: vitruvius_ten_books_architecture
+    title: "The Ten Books on Architecture (De Architectura)"
+    author: "Vitruvius"
+    original_year: -25
+    domain: art
+    why_canonical: >
+      The only surviving architectural treatise from antiquity; the source of
+      firmitas-utilitas-venustas and a direct model for Renaissance theory.
+    authorities: [great_books_western_world, oxford_history_of_art]
+    primary_source: true
+    acceptable_editions:
+      prefer_translations: ["Morgan"]
+    hunt:
+      sources: [gutenberg, internet_archive]
+    status: wanted
+
+  - id: pater_renaissance
+    title: "Studies in the History of the Renaissance"
+    author: "Walter Pater"
+    original_year: 1873
+    domain: art
+    why_canonical: >
+      Defined aestheticism and the "art for art's sake" sensibility; its
+      conclusion ("to burn always with this hard, gemlike flame") shaped a
+      generation's response to art.
+    authorities: [oxford_history_of_art]
+    primary_source: true
+    hunt:
+      sources: [gutenberg, internet_archive]
+    status: wanted
+
+  - id: reynolds_discourses_on_art
+    title: "Discourses on Art"
+    author: "Joshua Reynolds"
+    original_year: 1769
+    domain: art
+    why_canonical: >
+      The founding statement of academic art theory in England; the "grand
+      style" doctrine that the Romantics and Blake defined themselves against.
+    authorities: [oxford_history_of_art, great_books_western_world]
+    primary_source: true
+    hunt:
+      sources: [gutenberg, internet_archive]
+    status: wanted
+
+  - id: leonardo_treatise_on_painting
+    title: "A Treatise on Painting (Trattato della pittura)"
+    author: "Leonardo da Vinci"
+    original_year: 1651
+    domain: art
+    why_canonical: >
+      The compiled notebooks on the theory and practice of painting; a primary
+      source for Renaissance ideas of observation, sfumato, and the paragone.
+    authorities: [great_books_western_world, oxford_history_of_art]
+    primary_source: true
+    hunt:
+      sources: [gutenberg, internet_archive]
+    status: wanted
+
+  - id: winckelmann_history_ancient_art
+    title: "History of the Art of Antiquity"
+    author: "Johann Joachim Winckelmann"
+    original_year: 1764
+    domain: art
+    why_canonical: >
+      Founded art history as the study of stylistic development over time and
+      launched Neoclassicism; the first to periodize ancient art systematically.
+    authorities: [oxford_history_of_art, janson_history_of_art]
+    primary_source: true
+    acceptable_editions:
+      prefer_translations: ["Mallgrave"]
+    hunt:
+      sources: [internet_archive]
+    status: wanted
+
+  - id: met_open_access_paintings
+    title: "The Met — Open Access CC0 painting records (European Paintings)"
+    author: "The Metropolitan Museum of Art"
+    original_year: 2017
+    domain: art
+    why_canonical: >
+      The Met's CC0 open-access release: hundreds of thousands of object
+      records and images for public-domain works, a primary reference corpus
+      for the visual canon. Resolves to metadata + IIIF, not fetched images.
+    authorities: [met_timeline_art_history, oxford_history_of_art]
+    primary_source: true
+    hunt:
+      sources: [met_museum]
+    status: wanted
+
+  - id: smithsonian_open_access_art
+    title: "Smithsonian Open Access — CC0 art and design records"
+    author: "Smithsonian Institution"
+    original_year: 2020
+    domain: art
+    why_canonical: >
+      The Smithsonian's CC0 release across its art and design collections; a
+      broad open reference for American and world visual culture. Metadata and
+      image manifests, not fetched images.
+    authorities: [met_timeline_art_history]
+    primary_source: true
+    hunt:
+      sources: [smithsonian]
+    status: wanted
+
+  - id: burckhardt_civilization_renaissance_italy
+    title: "The Civilization of the Renaissance in Italy"
+    author: "Jacob Burckhardt"
+    original_year: 1860
+    domain: art
+    why_canonical: >
+      Defined the Renaissance as a cultural and artistic epoch and framed the
+      idea of the era for all subsequent scholarship; foundational cultural history.
+    authorities: [oxford_history_of_art, great_books_western_world, janson_history_of_art]
+    primary_source: true
+    acceptable_editions:
+      prefer_translations: ["Middlemore"]
+      min_word_count: 120000
+    hunt:
+      sources: [gutenberg, internet_archive]
+    status: wanted

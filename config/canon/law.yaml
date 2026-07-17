@@ -1,0 +1,201 @@
+# Hand-authored want-list — law. A human stands behind each entry.
+# DRAFT for review: ~12 seed works. hunt.sources reference registered sources
+# (some enabled: false until their P7/P8 adapter lands — the resolver reports
+# those honestly rather than treating the work as a miss).
+#
+# Coverage split deliberately: foundational treatises are on Gutenberg now;
+# landmark US cases hunt courtlistener (Caselaw Access Project); primary
+# founding documents hunt govinfo/wikisource.
+
+works:
+  - id: blackstone_commentaries
+    title: "Commentaries on the Laws of England"
+    author: "William Blackstone"
+    original_year: 1765
+    domain: law
+    why_canonical: >
+      The most influential single treatise in the common-law tradition;
+      structured English law for generations of British and American lawyers
+      and shaped the founders' understanding of rights and property.
+    authorities: [great_books_western_world, oxford_handbook_jurisprudence, harvard_classics_law]
+    primary_source: true
+    acceptable_editions:
+      avoid: ["abridged", "student outline"]
+      min_word_count: 200000
+    hunt:
+      sources: [gutenberg, internet_archive]
+    status: wanted
+
+  - id: federalist_papers
+    title: "The Federalist Papers"
+    author: "Alexander Hamilton, James Madison, John Jay"
+    original_year: 1788
+    domain: law
+    why_canonical: >
+      The authoritative contemporaneous exposition of the U.S. Constitution;
+      cited by courts to this day as evidence of original meaning.
+    authorities: [great_books_western_world, caselaw_access_project, harvard_classics_law]
+    primary_source: true
+    acceptable_editions:
+      avoid: ["selected", "abridged"]
+      min_word_count: 150000
+    hunt:
+      sources: [gutenberg, wikisource]
+    status: wanted
+
+  - id: holmes_common_law
+    title: "The Common Law"
+    author: "Oliver Wendell Holmes Jr."
+    original_year: 1881
+    domain: law
+    why_canonical: >
+      "The life of the law has not been logic; it has been experience." The
+      founding text of American legal realism and the functional study of law.
+    authorities: [oxford_handbook_jurisprudence, harvard_classics_law]
+    primary_source: true
+    acceptable_editions:
+      min_word_count: 90000
+    hunt:
+      sources: [gutenberg, internet_archive]
+    status: wanted
+
+  - id: montesquieu_spirit_of_laws
+    title: "The Spirit of the Laws"
+    author: "Montesquieu"
+    original_year: 1748
+    domain: law
+    why_canonical: >
+      Originated the separation of powers as a constitutional principle;
+      directly shaped the structure of the U.S. and later constitutions.
+    authorities: [great_books_western_world, oxford_handbook_jurisprudence]
+    primary_source: true
+    acceptable_editions:
+      prefer_translations: ["Nugent", "Cohler"]
+      avoid: ["abridged"]
+      min_word_count: 150000
+    hunt:
+      sources: [gutenberg]
+    status: wanted
+
+  - id: bentham_principles_morals_legislation
+    title: "An Introduction to the Principles of Morals and Legislation"
+    author: "Jeremy Bentham"
+    original_year: 1789
+    domain: law
+    why_canonical: >
+      The systematic founding statement of utilitarian jurisprudence and the
+      felicific calculus; the wellspring of modern legal positivism.
+    authorities: [oxford_handbook_jurisprudence, great_books_western_world]
+    primary_source: true
+    acceptable_editions:
+      min_word_count: 90000
+    hunt:
+      sources: [gutenberg, internet_archive]
+    status: wanted
+
+  - id: austin_province_of_jurisprudence
+    title: "The Province of Jurisprudence Determined"
+    author: "John Austin"
+    original_year: 1832
+    domain: law
+    why_canonical: >
+      Defined law as the command of the sovereign backed by sanction — the
+      command theory that Hart later answered and that framed a century of
+      analytic jurisprudence.
+    authorities: [oxford_handbook_jurisprudence]
+    primary_source: true
+    acceptable_editions:
+      min_word_count: 60000
+    hunt:
+      sources: [gutenberg, internet_archive]
+    status: wanted
+
+  - id: maine_ancient_law
+    title: "Ancient Law"
+    author: "Henry Sumner Maine"
+    original_year: 1861
+    domain: law
+    why_canonical: >
+      "From status to contract" — the founding work of comparative and
+      historical jurisprudence, tracing the evolution of legal ideas.
+    authorities: [oxford_handbook_jurisprudence, harvard_classics_law]
+    primary_source: true
+    acceptable_editions:
+      min_word_count: 90000
+    hunt:
+      sources: [gutenberg, internet_archive]
+    status: wanted
+
+  - id: us_constitution
+    title: "The Constitution of the United States"
+    author: "Constitutional Convention of 1787"
+    original_year: 1787
+    domain: law
+    why_canonical: >
+      The oldest written national constitution still in force; the primary
+      source against which all U.S. law is measured.
+    authorities: [caselaw_access_project, great_books_western_world]
+    primary_source: true
+    acceptable_editions:
+      avoid: ["annotated summary for children"]
+    hunt:
+      sources: [govinfo, wikisource]
+    status: wanted
+
+  - id: magna_carta
+    title: "Magna Carta"
+    author: "King John and the English barons"
+    original_year: 1215
+    domain: law
+    why_canonical: >
+      The foundational charter of limited government and due process; the
+      ancestral source of habeas corpus and the rule of law.
+    authorities: [great_books_western_world, oxford_handbook_jurisprudence]
+    primary_source: true
+    acceptable_editions:
+      prefer_translations: ["Blackstone", "British Library"]
+    hunt:
+      sources: [wikisource, internet_archive]
+    status: wanted
+
+  - id: marbury_v_madison
+    title: "Marbury v. Madison, 5 U.S. 137"
+    author: "U.S. Supreme Court (Marshall, C.J.)"
+    original_year: 1803
+    domain: law
+    why_canonical: >
+      Established judicial review — the power of courts to strike down
+      unconstitutional statutes. The keystone of American constitutional law.
+    authorities: [caselaw_access_project, oxford_handbook_jurisprudence]
+    primary_source: true
+    hunt:
+      sources: [courtlistener]
+    status: wanted
+
+  - id: mcculloch_v_maryland
+    title: "McCulloch v. Maryland, 17 U.S. 316"
+    author: "U.S. Supreme Court (Marshall, C.J.)"
+    original_year: 1819
+    domain: law
+    why_canonical: >
+      Affirmed implied federal powers and the supremacy of federal law over
+      the states; the doctrinal foundation of the modern national government.
+    authorities: [caselaw_access_project]
+    primary_source: true
+    hunt:
+      sources: [courtlistener]
+    status: wanted
+
+  - id: brown_v_board
+    title: "Brown v. Board of Education, 347 U.S. 483"
+    author: "U.S. Supreme Court (Warren, C.J.)"
+    original_year: 1954
+    domain: law
+    why_canonical: >
+      Held racial segregation in public schools unconstitutional, overturning
+      Plessy; the moral and doctrinal turning point of 20th-century civil-rights law.
+    authorities: [caselaw_access_project, oxford_handbook_jurisprudence]
+    primary_source: true
+    hunt:
+      sources: [courtlistener]
+    status: wanted

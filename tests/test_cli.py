@@ -23,7 +23,7 @@ def test_sources_validate_green_on_seed():
 def test_canon_validate_green_on_seed():
     r = _run("canon", "validate")
     assert r.exit_code == 0, r.output
-    assert "5 canon work(s) valid" in r.output
+    assert "41 canon work(s) valid" in r.output
 
 
 def test_sources_list_domain_filter():

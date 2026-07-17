@@ -35,9 +35,11 @@ def test_seed_canon_validates(config_dir):
         auths,
         known_source_ids=frozenset(s.id for s in reg.sources),
     )
-    assert len(c.works) == 5
-    assert all(w.domain == "metaphysics" for w in c.works)
+    assert len(c.works) == 41                       # 5 metaphysics + 12 each law/coding/art
+    assert len(c.by_domain("metaphysics")) == 5
+    assert {w.domain for w in c.works} == {"metaphysics", "law", "coding", "art"}
     assert c.get("kant_critique_pure_reason") is not None
+    assert c.get("turing_computable_numbers") is not None
 
 
 def test_valid_work_parses():

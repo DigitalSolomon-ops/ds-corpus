@@ -34,3 +34,105 @@ sources:
     rate:
       requests_per_second: 0.5
     schedule: weekly
+
+  # --- Registered but not yet built (enabled: false). Present so the canon can
+  # hunt them and `canon validate` stays green; adapters land in P7/P8. All are
+  # brief-sanctioned OPEN sources — no auth-walled or shadow-library sources. ---
+
+  - id: standard_ebooks
+    domain: [metaphysics, law, art]
+    tier: open_api                     # OPDS feed; public-domain, hand-produced
+    enabled: false
+    adapter: standard_ebooks
+    license_policy:
+      mode: per_record
+      allow: [public-domain, cc0-1.0]
+    rate:
+      requests_per_second: 0.5
+    schedule: weekly
+
+  - id: wikisource
+    domain: [metaphysics, law, coding, art]
+    tier: open_api                     # MediaWiki API
+    enabled: false
+    adapter: wikisource
+    license_policy:
+      mode: per_record
+      allow: [public-domain, cc-by-sa-4.0, cc0-1.0]
+    rate:
+      requests_per_second: 0.5
+    schedule: weekly
+
+  - id: internet_archive
+    domain: [metaphysics, law, coding, art]
+    tier: deep_archive
+    enabled: false
+    adapter: internet_archive
+    license_policy:
+      mode: per_record                 # fulltext + open collections only
+      allow: [public-domain, cc0-1.0, cc-by-4.0, cc-by-sa-4.0]
+    query:
+      require_fulltext: true
+    rate:
+      requests_per_second: 0.5
+    schedule: weekly
+
+  - id: courtlistener
+    domain: [law]
+    tier: open_api                     # free token; includes Caselaw Access Project
+    enabled: false
+    adapter: courtlistener
+    license_policy:
+      mode: blanket                    # US judicial opinions are public domain
+      allow: [public-domain]
+    rate:
+      requests_per_second: 0.5
+    schedule: weekly
+
+  - id: govinfo
+    domain: [law]
+    tier: open_api                     # free key; US government works
+    enabled: false
+    adapter: govinfo
+    license_policy:
+      mode: blanket
+      allow: [public-domain]
+    rate:
+      requests_per_second: 0.5
+    schedule: monthly
+
+  - id: bulk_repo
+    domain: [coding]
+    tier: bulk                         # git clones: Rust Book, MDN, Python docs
+    enabled: false
+    adapter: bulk_repo
+    license_policy:
+      mode: per_record
+      allow: [cc-by-4.0, cc-by-sa-4.0, public-domain, cc0-1.0]
+    rate:
+      requests_per_second: 0.5
+    schedule: monthly
+
+  - id: met_museum
+    domain: [art]
+    tier: open_api                     # isPublicDomain filter only
+    enabled: false
+    adapter: met_museum
+    license_policy:
+      mode: per_record
+      allow: [cc0-1.0, public-domain]
+    rate:
+      requests_per_second: 0.5
+    schedule: monthly
+
+  - id: smithsonian
+    domain: [art]
+    tier: open_api                     # free key; CC0 open-access records
+    enabled: false
+    adapter: smithsonian
+    license_policy:
+      mode: per_record
+      allow: [cc0-1.0]
+    rate:
+      requests_per_second: 0.5
+    schedule: monthly

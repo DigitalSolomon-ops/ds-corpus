@@ -1,0 +1,186 @@
+# Hand-authored want-list — coding / computer science. A human stands behind
+# each entry. DRAFT for review: ~12 seed works.
+#
+# Coding is the hardest domain to source openly: most foundational papers are
+# not on Gutenberg. hunt.sources lean on wikisource (Turing), internet_archive
+# (scanned classics), bulk_repo (living docs like the Rust Book), and arxiv
+# (modern seminal papers). TAOCP is included as a KNOWN-canonical but NOT-open
+# work (status: unavailable_open) — link, never fetch, per the brief.
+
+works:
+  - id: turing_computable_numbers
+    title: "On Computable Numbers, with an Application to the Entscheidungsproblem"
+    author: "Alan M. Turing"
+    original_year: 1936
+    domain: coding
+    why_canonical: >
+      Introduced the Turing machine and proved the undecidability of the
+      halting problem — the founding document of computability theory and,
+      arguably, of computer science itself.
+    authorities: [acm_turing_award, great_papers_computer_science]
+    primary_source: true
+    acceptable_editions:
+      avoid: ["summary", "annotated student edition"]
+    hunt:
+      sources: [wikisource, internet_archive]
+    status: wanted
+
+  - id: shannon_mathematical_theory_communication
+    title: "A Mathematical Theory of Communication"
+    author: "Claude E. Shannon"
+    original_year: 1948
+    domain: coding
+    why_canonical: >
+      Founded information theory: entropy, channel capacity, and the bit.
+      Underlies all of data compression, error correction, and modern comms.
+    authorities: [great_papers_computer_science, acm_turing_award]
+    primary_source: true
+    hunt:
+      sources: [internet_archive]
+    status: wanted
+
+  - id: church_lambda_calculus
+    title: "An Unsolvable Problem of Elementary Number Theory"
+    author: "Alonzo Church"
+    original_year: 1936
+    domain: coding
+    why_canonical: >
+      Introduced the lambda calculus and Church's thesis; the theoretical root
+      of functional programming and the Church–Turing equivalence.
+    authorities: [great_papers_computer_science]
+    primary_source: true
+    hunt:
+      sources: [internet_archive]
+    status: wanted
+
+  - id: codd_relational_model
+    title: "A Relational Model of Data for Large Shared Data Banks"
+    author: "Edgar F. Codd"
+    original_year: 1970
+    domain: coding
+    why_canonical: >
+      Defined the relational model — the foundation of every SQL database and
+      a Turing-Award-winning reframing of how data is stored and queried.
+    authorities: [acm_turing_award, great_papers_computer_science]
+    primary_source: true
+    hunt:
+      sources: [internet_archive]
+    status: wanted
+
+  - id: dijkstra_go_to_considered_harmful
+    title: "Go To Statement Considered Harmful"
+    author: "Edsger W. Dijkstra"
+    original_year: 1968
+    domain: coding
+    why_canonical: >
+      The letter that launched structured programming; reframed control flow
+      as a matter of intellectual manageability, not just correctness.
+    authorities: [great_papers_computer_science, sigplan_most_influential]
+    primary_source: true
+    hunt:
+      sources: [internet_archive]
+    status: wanted
+
+  - id: sicp
+    title: "Structure and Interpretation of Computer Programs"
+    author: "Harold Abelson and Gerald Jay Sussman"
+    original_year: 1985
+    domain: coding
+    why_canonical: >
+      The definitive text on programming as the disciplined control of
+      complexity; CC-licensed and freely available. A generation's first
+      encounter with abstraction, recursion, and interpreters.
+    authorities: [great_papers_computer_science, sigplan_most_influential]
+    primary_source: true
+    acceptable_editions:
+      min_word_count: 150000
+    hunt:
+      sources: [internet_archive, bulk_repo]
+    status: wanted
+
+  - id: cook_np_completeness
+    title: "The Complexity of Theorem-Proving Procedures"
+    author: "Stephen A. Cook"
+    original_year: 1971
+    domain: coding
+    why_canonical: >
+      Introduced NP-completeness and the P vs NP question — the central open
+      problem of theoretical computer science.
+    authorities: [acm_turing_award, great_papers_computer_science]
+    primary_source: true
+    hunt:
+      sources: [internet_archive]
+    status: wanted
+
+  - id: rivest_shamir_adleman_rsa
+    title: "A Method for Obtaining Digital Signatures and Public-Key Cryptosystems"
+    author: "Ron Rivest, Adi Shamir, Leonard Adleman"
+    original_year: 1978
+    domain: coding
+    why_canonical: >
+      The RSA paper — the first practical public-key cryptosystem, underpinning
+      secure communication across the entire internet.
+    authorities: [acm_turing_award, great_papers_computer_science]
+    primary_source: true
+    hunt:
+      sources: [internet_archive]
+    status: wanted
+
+  - id: lamport_time_clocks
+    title: "Time, Clocks, and the Ordering of Events in a Distributed System"
+    author: "Leslie Lamport"
+    original_year: 1978
+    domain: coding
+    why_canonical: >
+      Defined logical clocks and the happened-before relation; the conceptual
+      foundation of distributed systems and consensus.
+    authorities: [acm_turing_award, sigplan_most_influential]
+    primary_source: true
+    hunt:
+      sources: [internet_archive]
+    status: wanted
+
+  - id: rust_programming_language_book
+    title: "The Rust Programming Language"
+    author: "Steve Klabnik and Carol Nichols"
+    original_year: 2018
+    domain: coding
+    why_canonical: >
+      The canonical, openly-licensed reference for Rust; a model of how to
+      teach ownership and memory safety. Living documentation, MIT/Apache-2.0.
+    authorities: [great_papers_computer_science]
+    primary_source: true
+    acceptable_editions:
+      min_word_count: 100000
+    hunt:
+      sources: [bulk_repo]
+    status: wanted
+
+  - id: mccarthy_recursive_functions
+    title: "Recursive Functions of Symbolic Expressions and Their Computation by Machine"
+    author: "John McCarthy"
+    original_year: 1960
+    domain: coding
+    why_canonical: >
+      Introduced Lisp, symbolic computation, garbage collection, and eval —
+      ideas that shaped programming language design for decades.
+    authorities: [acm_turing_award, great_papers_computer_science]
+    primary_source: true
+    hunt:
+      sources: [internet_archive]
+    status: wanted
+
+  - id: knuth_taocp
+    title: "The Art of Computer Programming"
+    author: "Donald E. Knuth"
+    original_year: 1968
+    domain: coding
+    why_canonical: >
+      The definitive treatise on algorithms and their analysis. Included as a
+      canonical reference, but it is NOT open-access — link and cite metadata
+      only, never fetch. Recorded here so coverage honestly shows the gap.
+    authorities: [acm_turing_award, great_papers_computer_science]
+    primary_source: true
+    hunt:
+      sources: [internet_archive]
+    status: unavailable_open

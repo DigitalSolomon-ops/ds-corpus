@@ -24,3 +24,39 @@ authorities:
   - id: great_books_western_world
     name: "Great Books of the Western World (Britannica set)"
     weight: 0.6
+
+  # --- law ---
+  - id: oxford_handbook_jurisprudence
+    name: "The Oxford Handbook of Jurisprudence and Philosophy of Law"
+    weight: 0.8
+  - id: caselaw_access_project
+    name: "Caselaw Access Project — landmark US decisions (Harvard/CourtListener)"
+    weight: 0.75
+    url: https://case.law
+  - id: harvard_classics_law
+    name: "Harvard Classics — law and political philosophy volumes"
+    weight: 0.6
+
+  # --- coding / computer science ---
+  - id: acm_turing_award
+    name: "ACM A.M. Turing Award lectures and citations"
+    weight: 0.9
+    url: https://amturing.acm.org
+  - id: great_papers_computer_science
+    name: "Ideas That Created the Future / seminal CS papers canon"
+    weight: 0.8
+  - id: sigplan_most_influential
+    name: "ACM SIGPLAN/SIGOPS Most Influential Paper awards"
+    weight: 0.75
+
+  # --- art / art history ---
+  - id: oxford_history_of_art
+    name: "Oxford History of Art — core bibliography"
+    weight: 0.8
+  - id: janson_history_of_art
+    name: "Janson's History of Art — canonical survey"
+    weight: 0.7
+  - id: met_timeline_art_history
+    name: "The Met — Heilbrunn Timeline of Art History"
+    weight: 0.7
+    url: https://www.metmuseum.org/toah

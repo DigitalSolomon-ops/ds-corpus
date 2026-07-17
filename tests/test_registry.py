@@ -10,8 +10,11 @@ from conftest import deep_copy_source
 
 def test_seed_registry_validates(config_dir):
     reg = load_registry(config_dir / "sources.yaml")
-    assert len(reg.sources) == 2
-    assert {s.id for s in reg.sources} == {"arxiv", "gutenberg"}
+    assert len(reg.sources) == 10
+    # arxiv + gutenberg are enabled; the P7/P8 sources are registered but off
+    enabled = {s.id for s in reg.sources if s.enabled}
+    assert enabled == {"arxiv", "gutenberg"}
+    assert "internet_archive" in {s.id for s in reg.sources}
 
 
 def test_valid_source_parses():
