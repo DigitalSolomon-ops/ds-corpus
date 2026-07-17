@@ -18,6 +18,8 @@ def _norm_key(raw: str) -> str:
     s = raw.strip().lower()
     s = re.sub(r"^https?://", "", s)
     s = re.sub(r"^www\.", "", s)
+    s = re.sub(r"/legalcode(\.[a-z]{2})?$", "", s)   # CC deed vs legalcode URLs
+    s = re.sub(r"/deed(\.[a-z]{2})?$", "", s)
     s = s.rstrip("/").rstrip(".")
     s = re.sub(r"\s+", " ", s)
     return s
@@ -51,6 +53,7 @@ _TABLE: dict[str, str] = {
     "cc by-sa 4.0": "cc-by-sa-4.0",
     "creativecommons.org/licenses/by-sa/4.0": "cc-by-sa-4.0",
     "cc-by-sa-3.0": "cc-by-sa-3.0",
+    "cc by-sa 3.0": "cc-by-sa-3.0",
     "creativecommons.org/licenses/by-sa/3.0": "cc-by-sa-3.0",
     # --- known but never open (normalize for honest logging) ---
     "creativecommons.org/licenses/by-nc/4.0": "cc-by-nc-4.0",

@@ -77,6 +77,41 @@ sources:
       requests_per_second: 0.5
     schedule: weekly
 
+  - id: hathitrust
+    domain: [law, metaphysics, art]
+    tier: deep_archive                 # Bib API; FULL-VIEW ONLY, never limited
+    enabled: true
+    adapter: hathitrust
+    license_policy:
+      mode: per_record
+      allow: [public-domain, cc0-1.0, cc-by-3.0, cc-by-4.0, cc-by-sa-3.0, cc-by-sa-4.0]
+    query:
+      # Curated bibliographic ids (Bib API has no title search). Full-view
+      # gate still applies per item; limited-view items are never ingested.
+      ids: []
+    rate:
+      requests_per_second: 0.5
+    schedule: monthly
+
+  - id: iiif
+    domain: [art, metaphysics]
+    tier: deep_archive                 # IIIF manifests -> images_only metadata
+    enabled: true
+    adapter: iiif
+    license_policy:
+      mode: per_record                 # manifest rights must resolve to an open license
+      allow: [public-domain, cc0-1.0, cc-by-3.0, cc-by-4.0, cc-by-sa-3.0, cc-by-sa-4.0]
+    query:
+      # Curated IIIF manifest URLs (search endpoints are mostly robots-blocked).
+      # Walters (CC-BY-SA) is ingested as images_only; Vatican (all-rights-
+      # reserved) is correctly skipped by the fail-closed license gate.
+      manifests:
+        - https://purl.stanford.edu/qm670kv1873/iiif/manifest
+        - https://digi.vatlib.it/iiif/MSS_Vat.lat.3773/manifest.json
+    rate:
+      requests_per_second: 0.5
+    schedule: monthly
+
   - id: courtlistener
     domain: [law]
     tier: open_api                     # free token; includes Caselaw Access Project

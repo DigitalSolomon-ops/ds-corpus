@@ -118,11 +118,12 @@ cursor: re-resolve every run, body-hash dedup absorbs unchanged re-fetches.
       works, fetches selected edition, strips PG boilerplate, ingests as canon
       hit w/ significance short-circuit. Remaining P7 sources: standard_ebooks,
       wikisource, courtlistener, govinfo, met_museum, openalex, doaj, bulk_repo)
-- [~] P8 — Deep archive adapters (internet_archive DONE: search + canon harvest
-      with strict safety gates — no lending/restricted items, fail-closed
-      license, images-only = empty body never fabricated. Resolves Aristotle
-      gap. Remaining P8: hathitrust full-view-only, loc, perseus, gallica,
-      digivatlib, digital_bodleian, oai_generic — all follow the IA pattern)
+- [~] P8 — Deep archive adapters. DONE: internet_archive (search + harvest,
+      lending/license/images gates; resolves Aristotle gap), hathitrust
+      (full-view-only rightsCode gate, metadata_only records), iiif (generic
+      Gallica/DigiVatLib/Bodleian manifest reader — images_only, fail-closed
+      license so Walters CC-BY-SA is in but copyrighted Vatican is out).
+      Remaining: loc, perseus, oai_generic — clone these patterns.
 - [ ] P9 — Cloud Run Job + Scheduler + GCS + Secret Manager
 - [ ] P10 — Local mirror + FTS
 - [ ] P11 — Scrape tier

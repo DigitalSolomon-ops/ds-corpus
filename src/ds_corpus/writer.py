@@ -146,12 +146,19 @@ def verify(store: FilesystemStore, index: SQLiteIndex) -> list[str]:
         except Exception as e:
             problems.append(f"{path}: unparseable front-matter: {e}")
             continue
+        # Mirror ingest's hashing: empty-body (metadata/images_only) records
+        # hash their identity, not the empty body.
+        normalized = normalize_markdown(body)
+        if normalized.strip():
+            expected = body_sha256(normalized)
+        else:
+            expected = body_sha256(fm.id + "\x00" + str(fm.source_url or ""))
         entry = indexed.get(path)
         if entry is None:
             problems.append(f"{path}: on disk but not in index")
         elif entry["content_sha256"] != fm.content_sha256:
             problems.append(f"{path}: index sha != front-matter sha")
-        elif body_sha256(normalize_markdown(body)) != fm.content_sha256:
+        elif expected != fm.content_sha256:
             problems.append(f"{path}: body hash != front-matter sha")
 
     for path, entry in indexed.items():
