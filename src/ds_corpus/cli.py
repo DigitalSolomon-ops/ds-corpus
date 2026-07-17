@@ -117,9 +117,49 @@ def canon_resolve() -> None:
 # ------------------------------------------------------------------ stubs
 
 @main.command()
-def run() -> None:
+@click.option("--source", "source_id", default=None, help="Run one source by id")
+@click.option("--schedule", "schedule", default=None,
+              type=click.Choice(["daily", "weekly", "monthly"]),
+              help="Run every enabled source on this cadence, sequentially")
+@click.option("--local", is_flag=True, help="Filesystem + SQLite backends")
+@click.option("--dry-run", is_flag=True, help="Print what would happen; zero writes")
+@click.option("--limit", type=int, default=None, help="Max candidates this run")
+@click.option("--full", is_flag=True, help="Ignore cursor; recrawl from the start")
+@click.pass_context
+def run(ctx, source_id, schedule, local, dry_run, limit, full) -> None:
     """Run ingest for a source or schedule."""
-    _not_yet("P4")
+    from ds_corpus.scheduler import run_schedule, run_source
+
+    if not local:
+        _die("cloud mode arrives in P9 — use --local")
+    if bool(source_id) == bool(schedule):
+        _die("pass exactly one of --source or --schedule")
+
+    cfg = _config_dir(ctx)
+    settings = _load_settings_or_die(cfg)
+    reg = _load_registry_or_die(cfg)
+    store, index = _open_local(ctx)
+    try:
+        if source_id:
+            source = reg.get(source_id)
+            if source is None:
+                _die(f"unknown source: {source_id}")
+            if not source.enabled:
+                _die(f"source {source_id} is disabled in sources.yaml")
+            stats = run_source(
+                source, settings, store, index,
+                dry_run=dry_run, limit=limit, full=full, log=click.echo,
+            )
+            if stats.errors:
+                sys.exit(1)
+        else:
+            results = run_schedule(
+                schedule, reg, settings, store, index, dry_run=dry_run, log=click.echo
+            )
+            if any(s.errors for s in results.values()):
+                sys.exit(1)
+    finally:
+        index.close()
 
 
 @main.command()

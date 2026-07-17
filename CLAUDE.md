@@ -60,9 +60,10 @@ validation, unknown keys fail.
 ## Phase status
 
 - [x] P1 — Skeleton: pyproject, models, sources/canon validators, seed configs, tests
-- [ ] P2 — HTTP + licensing
-- [ ] P3 — Normalize + write + index
-- [ ] P4 — Reference adapter: arxiv
+- [x] P2 — HTTP + licensing
+- [x] P3 — Normalize + write + index
+- [x] P4 — Reference adapter: arxiv (built + live-smoked; HUMAN GATE PENDING:
+      Marcus reads the .md output in C:\Users\marcu\ds-corpus-library)
 - [ ] P5 — Canon resolver
 - [ ] P6 — Significance + triage
 - [ ] P7 — Open-tier adapters

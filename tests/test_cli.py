@@ -58,6 +58,12 @@ def test_canon_validate_rejects_hunt_source_outside_registry(tmp_path):
 
 
 def test_unbuilt_command_exits_2():
-    r = _run("run")
+    r = _run("search")
     assert r.exit_code == 2
-    assert "P4" in r.output
+    assert "P10" in r.output
+
+
+def test_run_requires_local_until_p9():
+    r = _run("run", "--source", "arxiv")
+    assert r.exit_code == 1
+    assert "P9" in r.output

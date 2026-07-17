@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/">
+  <responseDate>2026-07-16T00:00:00Z</responseDate>
+  <request verb="ListRecords">https://export.arxiv.org/oai2</request>
+  <ListRecords>
+    <record>
+      <header>
+        <identifier>oai:arXiv.org:2601.01234</identifier>
+        <datestamp>2026-01-05</datestamp>
+        <setSpec>cs</setSpec>
+      </header>
+      <metadata>
+        <arXiv xmlns="http://arxiv.org/OAI/arXiv/">
+          <id>2601.01234</id>
+          <created>2026-01-03</created>
+          <authors>
+            <author><keyname>Turing</keyname><forenames>Alan M.</forenames></author>
+            <author><keyname>Hopper</keyname><forenames>Grace</forenames></author>
+          </authors>
+          <title>On Computable  Corpora
+   and Their Curation</title>
+          <categories>cs.DL cs.CL</categories>
+          <license>http://creativecommons.org/licenses/by/4.0/</license>
+          <abstract>We consider the curation of open corpora.</abstract>
+        </arXiv>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>oai:arXiv.org:2601.09999</identifier>
+        <datestamp>2026-01-08</datestamp>
+        <setSpec>cs</setSpec>
+      </header>
+      <metadata>
+        <arXiv xmlns="http://arxiv.org/OAI/arXiv/">
+          <id>2601.09999</id>
+          <created>2026-01-07</created>
+          <authors>
+            <author><keyname>Closed</keyname><forenames>Cora</forenames></author>
+          </authors>
+          <title>A Paper Under the Default Grant</title>
+          <categories>cs.SE</categories>
+          <license>http://arxiv.org/licenses/nonexclusive-distrib/1.0/</license>
+          <abstract>This one must be skipped by the gate.</abstract>
+        </arXiv>
+      </metadata>
+    </record>
+    <record>
+      <header status="deleted">
+        <identifier>oai:arXiv.org:2601.00001</identifier>
+        <datestamp>2026-01-09</datestamp>
+      </header>
+    </record>
+    <resumptionToken cursor="0" completeListSize="3">6001234|1001</resumptionToken>
+  </ListRecords>
+</OAI-PMH>

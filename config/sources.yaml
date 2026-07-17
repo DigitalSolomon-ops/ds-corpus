@@ -16,6 +16,7 @@ sources:
       allow: [cc0-1.0, cc-by-4.0, cc-by-sa-4.0, public-domain]
     query:
       sets: [cs]
+      initial_from: "2026-06-01"    # first harvest starts here; cursor takes over after
     rate:
       requests_per_second: 0.25       # arXiv asks for ~1 req / 3 s; stay under
     schedule: weekly
