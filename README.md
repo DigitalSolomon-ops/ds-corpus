@@ -19,11 +19,29 @@ gcloud storage cp /dev/null gs://ds-corpus-library/HALT
 Delete it to allow runs again. This is checked before every task, not just at
 job start.
 
+## Routine schedule (local)
+
+Two Windows scheduled tasks run the corpus automatically (they only fire while
+the machine is awake — cloud/unattended is P9):
+
+| Task | Cadence | Sources |
+|---|---|---|
+| `ds-corpus-weekly` | Sundays 18:00 | arxiv, gutenberg, internet_archive |
+| `ds-corpus-monthly` | 1st of month 18:30 | hathitrust, iiif |
+
+Both invoke `infra/local-schedule.ps1 -Cadence <weekly|monthly>`, which runs
+`ds-corpus run --schedule <cadence> --local` and logs to
+`<library>/_runs/scheduled-*.log`. Trigger a run by hand with
+`Start-ScheduledTask -TaskName ds-corpus-weekly`.
+
 ## Status
 
-Phase **P1 (skeleton)** complete: config schemas, validators, seed registry
-(2 sources, 5 metaphysics canon works). No network code yet. See `CLAUDE.md`
-for the phase tracker and governing constraints.
+Phases P1–P8 (partial) complete: config + validators, polite HTTP + fail-closed
+licensing, write path, significance gate (Haiku triage), canon resolver, and
+adapters for arxiv, gutenberg, internet_archive, hathitrust, and IIIF. Canon is
+41 works across law/metaphysics/coding/art. See `CLAUDE.md` for the phase
+tracker and governing constraints. Next: P9 (cloud/unattended), P10 (mirror +
+FTS search).
 
 ## Quick start (local dev)
 
