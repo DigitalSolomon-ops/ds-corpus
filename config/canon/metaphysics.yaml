@@ -1,0 +1,98 @@
+# Hand-authored want-list. A human stands behind every entry.
+# P1 seed: 5 works. Domain target is 40–80 entries, added deliberately.
+#
+# hunt.sources may only name ids present in config/sources.yaml — the
+# registry is the authorization surface. As adapters land (internet_archive,
+# wikisource, standard_ebooks in P7/P8), widen the hunts.
+
+works:
+  - id: kant_critique_pure_reason
+    title: "Critique of Pure Reason"
+    author: "Immanuel Kant"
+    original_year: 1781
+    domain: metaphysics
+    why_canonical: >
+      Foundational to modern metaphysics and epistemology; the pivot point
+      between rationalism and empiricism.
+    authorities: [philpapers_core, oxford_handbook_metaphysics, cambridge_companion]
+    primary_source: true
+    acceptable_editions:
+      prefer_translations: ["Kemp Smith", "Guyer & Wood", "Pluhar", "Meiklejohn"]
+      avoid: ["abridged", "student summary", "graphic adaptation"]
+      min_word_count: 100000
+    hunt:
+      sources: [gutenberg]
+    status: wanted
+
+  - id: aristotle_metaphysics
+    title: "Metaphysics"
+    author: "Aristotle"
+    original_year: -350
+    domain: metaphysics
+    why_canonical: >
+      The work that named the field. First systematic treatment of being qua
+      being, substance, causation, and the unmoved mover; every subsequent
+      Western metaphysics answers to it.
+    authorities: [philpapers_core, cambridge_companion, great_books_western_world]
+    primary_source: true
+    acceptable_editions:
+      prefer_translations: ["W. D. Ross"]
+      avoid: ["abridged", "student summary"]
+      min_word_count: 80000
+    hunt:
+      sources: [gutenberg]
+    status: wanted
+
+  - id: spinoza_ethics
+    title: "Ethics, Demonstrated in Geometrical Order"
+    author: "Baruch Spinoza"
+    original_year: 1677
+    domain: metaphysics
+    why_canonical: >
+      The high-water mark of rationalist metaphysics: substance monism,
+      necessitarianism, and mind-body parallelism argued more geometrico.
+    authorities: [philpapers_core, cambridge_companion, sep_bibliography]
+    primary_source: true
+    acceptable_editions:
+      prefer_translations: ["Elwes", "Curley"]
+      avoid: ["abridged"]
+      min_word_count: 50000
+    hunt:
+      sources: [gutenberg]
+    status: wanted
+
+  - id: hume_enquiry_human_understanding
+    title: "An Enquiry Concerning Human Understanding"
+    author: "David Hume"
+    original_year: 1748
+    domain: metaphysics
+    why_canonical: >
+      The sharpest statement of empiricist skepticism about causation,
+      induction, and miracles; the book that woke Kant from his dogmatic
+      slumber.
+    authorities: [philpapers_core, cambridge_companion, great_books_western_world]
+    primary_source: true
+    acceptable_editions:
+      avoid: ["abridged", "modernized paraphrase"]
+      min_word_count: 40000
+    hunt:
+      sources: [gutenberg]
+    status: wanted
+
+  - id: plato_republic
+    title: "The Republic"
+    author: "Plato"
+    original_year: -375
+    domain: metaphysics
+    why_canonical: >
+      The theory of Forms at full stretch — the divided line, the cave, the
+      Good beyond being — inside the founding text of political philosophy.
+    authorities: [philpapers_core, great_books_western_world, sep_bibliography]
+    primary_source: true
+    acceptable_editions:
+      prefer_translations: ["Jowett", "Shorey"]
+      avoid: ["abridged", "children's adaptation"]
+      min_word_count: 100000
+    hunt:
+      sources: [gutenberg]
+    status: wanted

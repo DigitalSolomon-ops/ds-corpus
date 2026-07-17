@@ -1,0 +1,26 @@
+# Lists that confer canonical status. An authority hit count is the single
+# strongest non-canon signal in the significance score. Weights are relative
+# credibility, 0–1.
+
+authorities:
+  - id: philpapers_core
+    name: "PhilPapers — most-cited works in the discipline"
+    weight: 0.9
+    url: https://philpapers.org
+
+  - id: oxford_handbook_metaphysics
+    name: "The Oxford Handbook of Metaphysics — core bibliography"
+    weight: 0.8
+
+  - id: cambridge_companion
+    name: "Cambridge Companions to Philosophy — subject volumes"
+    weight: 0.8
+
+  - id: sep_bibliography
+    name: "Stanford Encyclopedia of Philosophy — article bibliographies (metadata only; SEP bodies are out of scope)"
+    weight: 0.85
+    url: https://plato.stanford.edu
+
+  - id: great_books_western_world
+    name: "Great Books of the Western World (Britannica set)"
+    weight: 0.6

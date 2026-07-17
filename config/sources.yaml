@@ -1,0 +1,35 @@
+# The authorization surface: a source that is not here, valid, and enabled
+# does not get fetched. Strict schema — unknown keys fail validation.
+#
+# P1 seed registry: two sources. arxiv is the P4 reference adapter;
+# gutenberg backs the metaphysics canon hunts. More sources land in P7/P8,
+# each one deliberately.
+
+sources:
+  - id: arxiv
+    domain: [coding]
+    tier: open_api
+    enabled: true
+    adapter: arxiv
+    license_policy:
+      mode: per_record
+      allow: [cc0-1.0, cc-by-4.0, cc-by-sa-4.0, public-domain]
+    query:
+      sets: [cs]
+    rate:
+      requests_per_second: 0.25       # arXiv asks for ~1 req / 3 s; stay under
+    schedule: weekly
+
+  - id: gutenberg
+    domain: [metaphysics, law, art]
+    tier: open_api
+    enabled: true
+    adapter: gutenberg
+    license_policy:
+      mode: per_record
+      allow: [public-domain]
+    query:
+      languages: [en]
+    rate:
+      requests_per_second: 0.5
+    schedule: weekly

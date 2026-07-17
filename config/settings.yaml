@@ -1,0 +1,20 @@
+# Global knobs. Strict schema — unknown keys fail validation.
+
+license_allowlist:
+  - public-domain
+  - cc0-1.0
+  - cc-by-4.0
+  - cc-by-sa-4.0
+
+budgets:
+  max_documents_per_run: 500
+  max_bytes_per_run: 536870912        # 512 MiB
+  max_wall_seconds: 10800             # 3 h — Cloud Run Job task timeout headroom
+  max_triage_usd: 5.0
+
+significance:
+  threshold: 45                       # canon hits short-circuit this
+
+user_agent: "ds-corpus/0.2.0 (curated open-corpus ingest; contact: digitalsolomon.com@gmail.com)"
+contact_email: digitalsolomon.com@gmail.com
+gcs_bucket: ds-corpus-library
