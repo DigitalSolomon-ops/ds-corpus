@@ -64,7 +64,9 @@ validation, unknown keys fail.
 - [x] P3 — Normalize + write + index
 - [x] P4 — Reference adapter: arxiv (built + live-smoked; HUMAN GATE PENDING:
       Marcus reads the .md output in C:\Users\marcu\ds-corpus-library)
-- [ ] P5 — Canon resolver
+- [x] P5 — Canon resolver (hunt/rank/select + coverage.json/WANTED.md; live
+      4/5 metaphysics resolved, all preferred translations picked; HUMAN GATE
+      PENDING: Marcus reviews edition choices in _canon/coverage.json)
 - [ ] P6 — Significance + triage
 - [ ] P7 — Open-tier adapters
 - [ ] P8 — Deep archive adapters

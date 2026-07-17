@@ -104,14 +104,88 @@ def canon_validate(ctx: click.Context) -> None:
     click.echo(f"OK: {len(auths.authorities)} authority list(s) valid")
 
 
-@canon_group.command("coverage")
-def canon_coverage() -> None:
-    _not_yet("P5")
+def _load_canon_or_die(cfg: Path):
+    reg = _load_registry_or_die(cfg)
+    try:
+        auths = canon_mod.load_authorities(cfg / "authorities.yaml")
+        c = canon_mod.load_canon(
+            cfg / "canon", auths, known_source_ids=frozenset(s.id for s in reg.sources)
+        )
+    except (canon_mod.CanonValidationError, ValidationError, OSError) as e:
+        _die(f"canon invalid:\n{e}")
+    return c, reg
+
+
+def _session_factory(settings):
+    """PoliteSession per source, honoring its rate limit."""
+    from ds_corpus.http import PoliteSession
+
+    def factory(source):
+        return PoliteSession(settings.user_agent, source.rate.requests_per_second)
+
+    return factory
 
 
 @canon_group.command("resolve")
-def canon_resolve() -> None:
-    _not_yet("P5")
+@click.option("--work", "work_id", required=True, help="Canon work id to resolve")
+@click.option("--dry-run", is_flag=True, help="Hunt and rank; print the pick, write nothing")
+@click.pass_context
+def canon_resolve(ctx: click.Context, work_id: str, dry_run: bool) -> None:
+    """Find the best open edition of one canon work."""
+    from ds_corpus.resolver import resolve_work
+
+    cfg = _config_dir(ctx)
+    settings = _load_settings_or_die(cfg)
+    canon, reg = _load_canon_or_die(cfg)
+    work = canon.get(work_id)
+    if work is None:
+        _die(f"unknown canon work: {work_id}")
+
+    res = resolve_work(work, reg, settings, _session_factory(settings))
+    click.echo(f"{work.id} — {res.status}")
+    if res.selected:
+        s = res.selected
+        click.echo(f"  SELECTED [{s['source']}:{s['edition_id']}] score={s['score']}")
+        click.echo(f"    {s['title']}")
+        if s["translators"]:
+            click.echo(f"    translators: {', '.join(s['translators'])}")
+        click.echo(f"    {s['url']}")
+        click.echo(f"    signals: {res.selected_signals}")
+        for a in res.alternates:
+            click.echo(f"  alt  [{a['source']}:{a['edition_id']}] score={a['score']} — {a['title']}")
+    else:
+        click.echo(f"  no viable edition. tried={res.tried} "
+                   f"unbuilt={res.unbuilt_sources} note={res.note}")
+    for d in res.disqualified:
+        click.echo(f"  DQ  [{d['source']}:{d['edition_id']}] {d['disqualified']} — {d['title']}")
+
+
+@canon_group.command("coverage")
+@click.option("--domain", default=None, help="Restrict to one domain")
+@click.option("--dry-run", is_flag=True, help="Resolve and print; do not write coverage files")
+@click.pass_context
+def canon_coverage(ctx: click.Context, domain: str | None, dry_run: bool) -> None:
+    """Resolve the (domain's) canon and report resolved/wanted coverage."""
+    from ds_corpus.resolver import resolve_all, write_coverage
+
+    cfg = _config_dir(ctx)
+    settings = _load_settings_or_die(cfg)
+    canon, reg = _load_canon_or_die(cfg)
+
+    resolutions = resolve_all(
+        canon, reg, settings, _session_factory(settings), domain=domain, log=click.echo
+    )
+    resolved = sum(1 for r in resolutions if r.status == "resolved")
+    click.echo(f"\ncoverage: {resolved}/{len(resolutions)} resolved"
+               + (f" ({domain})" if domain else ""))
+    if dry_run:
+        click.echo("(dry-run: coverage.json / WANTED.md not written)")
+        return
+    store, index = _open_local(ctx)
+    index.close()
+    write_coverage(resolutions, canon, store, domain=domain)
+    click.echo(f"wrote {store.root / '_canon' / 'coverage.json'}")
+    click.echo(f"wrote {store.root / '_canon' / 'WANTED.md'}")
 
 
 # ------------------------------------------------------------------ stubs
