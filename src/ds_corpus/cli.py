@@ -240,6 +240,49 @@ def run(ctx, source_id, schedule, local, dry_run, limit, full) -> None:
 
 
 @main.command()
+@click.option("--open", "open_browser", is_flag=True, help="Open the page after writing it")
+@click.pass_context
+def dashboard(ctx: click.Context, open_browser: bool) -> None:
+    """Render the human-input control room to _dashboard/index.html."""
+    from ds_corpus import dashboard as dash
+
+    cfg = _config_dir(ctx)
+    settings = _load_settings_or_die(cfg)
+    canon, reg = _load_canon_or_die(cfg)
+    store, index = _open_local(ctx)
+    try:
+        data = dash.collect(settings, reg, canon, store, index)
+    finally:
+        index.close()
+    store.write("_dashboard/index.html", dash.render_html(data))
+    out = store.root / "_dashboard" / "index.html"
+    click.echo(f"wrote {out}  ({len(data.actions)} action item(s))")
+    for a in data.actions[:6]:
+        click.echo(f"  [{a.kind}] {a.title}")
+    if open_browser:
+        import webbrowser
+        webbrowser.open(out.as_uri())
+
+
+@main.command()
+@click.argument("phase")
+@click.argument("action", type=click.Choice(["pass", "reset"]))
+@click.pass_context
+def gate(ctx: click.Context, phase: str, action: str) -> None:
+    """Record (or clear) a human sign-off on a phase gate. E.g. `gate P5 pass`."""
+    from ds_corpus import dashboard as dash
+
+    phase = phase.upper()
+    known = {p[0] for p in dash.PHASES}
+    if phase not in known:
+        _die(f"unknown phase {phase!r}; known: {', '.join(sorted(known))}")
+    store, index = _open_local(ctx)
+    index.close()
+    dash.set_gate(store, phase, signed=(action == "pass"))
+    click.echo(f"{phase}: {'signed off ✓' if action == 'pass' else 'sign-off cleared'}")
+
+
+@main.command()
 @click.pass_context
 def status(ctx: click.Context) -> None:
     """Document counts from the local index."""

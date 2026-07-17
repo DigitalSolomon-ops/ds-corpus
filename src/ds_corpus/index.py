@@ -157,5 +157,19 @@ class SQLiteIndex:
                 (_now(), stats_json, run_id),
             )
 
+    def recent_runs(self, limit: int = 8) -> list[dict]:
+        rows = self._conn.execute(
+            "SELECT run_id, started_at, finished_at, stats_json FROM runs"
+            " ORDER BY started_at DESC LIMIT ?",
+            (limit,),
+        ).fetchall()
+        out = []
+        for r in rows:
+            out.append({
+                "run_id": r[0], "started_at": r[1],
+                "finished_at": r[2], "stats_json": r[3],
+            })
+        return out
+
     def close(self) -> None:
         self._conn.close()
