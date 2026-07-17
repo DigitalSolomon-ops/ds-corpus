@@ -17,6 +17,7 @@ VALID = {
     "user_agent": "ds-corpus/test (contact: test@example.com)",
     "contact_email": "test@example.com",
     "gcs_bucket": "ds-corpus-library",
+    "local_library_dir": "C:/tmp/library",
 }
 
 

@@ -123,8 +123,18 @@ def run() -> None:
 
 
 @main.command()
-def status() -> None:
-    _not_yet("P4")
+@click.pass_context
+def status(ctx: click.Context) -> None:
+    """Document counts from the local index."""
+    store, index = _open_local(ctx)
+    c = index.counts()
+    click.echo(f"library: {store.root}")
+    click.echo(f"documents (incl. superseded): {c['total']}")
+    for src, n in sorted(c["active_by_source"].items()):
+        click.echo(f"  active from {src}: {n}")
+    if store.halted():
+        click.echo("!! HALT file present — runs will abort", err=True)
+    index.close()
 
 
 @main.command()
@@ -138,8 +148,19 @@ def reindex() -> None:
 
 
 @main.command()
-def verify() -> None:
-    _not_yet("P3")
+@click.pass_context
+def verify(ctx: click.Context) -> None:
+    """Index <-> store reconciliation."""
+    from ds_corpus.writer import verify as verify_fn
+
+    store, index = _open_local(ctx)
+    problems = verify_fn(store, index)
+    index.close()
+    if problems:
+        for p in problems:
+            click.echo(f"PROBLEM: {p}", err=True)
+        sys.exit(1)
+    click.echo("OK: index and store agree")
 
 
 @main.command()
@@ -153,6 +174,18 @@ def deploy() -> None:
 
 
 # ---------------------------------------------------------------- helpers
+
+def _open_local(ctx: click.Context):
+    """Local-mode store + index from settings.local_library_dir."""
+    from ds_corpus.index import SQLiteIndex
+    from ds_corpus.store import FilesystemStore
+
+    settings = _load_settings_or_die(_config_dir(ctx))
+    root = Path(settings.local_library_dir).expanduser()
+    store = FilesystemStore(root)
+    index = SQLiteIndex(root / "_index.sqlite3")
+    return store, index
+
 
 def _load_registry_or_die(cfg: Path) -> registry_mod.SourcesRegistry:
     try:

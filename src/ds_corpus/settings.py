@@ -39,6 +39,9 @@ class Settings(BaseModel):
     user_agent: str = Field(min_length=1, description="Descriptive UA with contact address")
     contact_email: str = Field(pattern=r".+@.+\..+")
     gcs_bucket: str = Field(min_length=1)
+    # Local-mode library root (and, later, the rsync mirror target).
+    # Deliberately outside the repo.
+    local_library_dir: str = Field(min_length=1)
 
 
 def load_settings(path: Path) -> Settings:

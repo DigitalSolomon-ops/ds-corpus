@@ -18,3 +18,4 @@ significance:
 user_agent: "ds-corpus/0.2.0 (curated open-corpus ingest; contact: digitalsolomon.com@gmail.com)"
 contact_email: digitalsolomon.com@gmail.com
 gcs_bucket: ds-corpus-library
+local_library_dir: C:/Users/marcu/ds-corpus-library
