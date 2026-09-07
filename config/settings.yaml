@@ -22,4 +22,8 @@ triage:
 user_agent: "ds-corpus/0.2.0 (curated open-corpus ingest; contact: digitalsolomon.com@gmail.com)"
 contact_email: digitalsolomon.com@gmail.com
 gcs_bucket: ds-corpus-library
-local_library_dir: C:/Users/marcu/ds-corpus-library
+# Fixed 2026-07-28. Was C:/Users/marcu/ds-corpus-library, a path that stopped existing
+# in the 2026-07-23 reorganization — every corpus run has failed here since.
+# The portfolio migration moves this again, to:
+#   C:/Users/marcu/Projects/portfolios/internal-tools/_data/ds-corpus-library
+local_library_dir: C:/Users/marcu/Projects/portfolios/internal-tools/_data/ds-corpus-library

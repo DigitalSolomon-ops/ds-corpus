@@ -1,0 +1,24 @@
+schema: digitalsolomon/project@1
+
+project:
+  key: ds-corpus
+  name: DS Corpus
+  portfolio: internal-tools
+  purpose: >
+    Canon-driven open-corpus curator. Canon files in config/canon/*.yaml, significance gate before ingest.
+  status: >
+    Operational (local). P1-P8 (partial) built; weekly/monthly Windows scheduled
+    runs. Library path fixed 2026-07-28; venv rebuilt 2026-09-07 after the
+    portfolio move (a moved Windows venv hardcodes stale paths). Next: P9 cloud.
+
+location: { now: Digital Solomon/platform/ds-corpus, after: portfolios/internal-tools/ds-corpus }
+
+gates:
+  inherit: portfolio
+  adds:
+    - key: license-allowlist-is-closed
+      rule: >
+        Only the licences in settings.yaml license_allowlist are ingested. Widening
+        that list is a legal decision and therefore human-owned.
+    - key: canon-authorship-is-human
+      rule: Canon and want-list authorship is never delegated to an agent.

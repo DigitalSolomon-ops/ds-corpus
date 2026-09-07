@@ -21,8 +21,8 @@ param(
   [string]$Cadence = "weekly"
 )
 
-$repo    = "C:\Users\marcu\ds-corpus"
-$library = "C:\Users\marcu\ds-corpus-library"
+$repo    = Split-Path -Parent $PSScriptRoot   # infra\ sits in the repo; self-locating survives any move
+$library = "C:\Users\marcu\Projects\portfolios\internal-tools\_data\ds-corpus-library"
 $exe     = Join-Path $repo ".venv\Scripts\ds-corpus.exe"
 $logDir  = Join-Path $library "_runs"
 New-Item -ItemType Directory -Force $logDir | Out-Null

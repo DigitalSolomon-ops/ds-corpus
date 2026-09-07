@@ -3,9 +3,34 @@
 Curated open-corpus library: canon-driven ingest → Markdown → GCS, on a schedule.
 
 A hand-authored canon (`config/canon/*.yaml`) of works that matter drives the
-fetching; the system hunts for **open** editions of known-important works.
-A significance gate rejects chaff with a written rationale. Coverage against
-the canon — not document count — is the success metric.
+fetching; the system hunts for **open** editions of known-important works
+across six heterogeneous source APIs (arXiv OAI-PMH, Project Gutenberg,
+Internet Archive, HathiTrust, generic IIIF). A two-stage significance gate — a
+free deterministic scorer, then a Claude judgment pass — rejects chaff *with a
+written rationale on file*. Coverage against the canon — not document count —
+is the success metric.
+
+## Design decisions
+
+Most ingest pipelines maximize document count; this one inverts that, and every
+constraint fails closed:
+
+- **Licensing has no fuzzy matching.** An unrecognized license normalizes to
+  `None`, and a `None` license is never written (`src/ds_corpus/licensing.py`).
+  Known-but-disallowed licenses still normalize, so logs can distinguish
+  "known, not allowed" from "unknown".
+- **The cost cap checkpoints instead of discarding.** If estimated triage spend
+  would exceed the run budget (`max_triage_usd`), affected records stay
+  `pending` — never silently rejected — and are retried next run
+  (`src/ds_corpus/gate.py`).
+- **Rejections are preserved, not deleted.** Every gate decision carries a
+  written reason, so the curator can audit why something was refused.
+- **Claude reasons; code fetches and enforces.** The triage stage runs on the
+  Batch API with prompt caching over a byte-stable rubric (no timestamps, no
+  per-doc interpolation), so the cache actually hits (`src/ds_corpus/triage.py`).
+- **Politeness is non-bypassable.** A token-bucket rate limiter whose
+  `slow_to()` can widen an interval (robots crawl-delay) but never narrow it
+  (`src/ds_corpus/http.py`).
 
 ## Kill switch
 
@@ -61,4 +86,4 @@ pytest
 - `config/canon/*.yaml` — WHAT to hunt for; hand-authored want-lists
 - `config/authorities.yaml` — lists that confer canonical status
 - `src/ds_corpus/` — package
-- `tests/` — all offline; network is always mocked
+- `tests/` — all offline; network is always mocked (171 tests, ~9s)
